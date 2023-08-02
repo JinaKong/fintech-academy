@@ -1,23 +1,22 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import Welcome from "./components/Welcome";
-import ListComponent from "./components/ListComponent";
-import InputComponent from "./components/InputComponent";
-import AxiosComponent from "./components/AxiosComponent";
-import StyledComponent from "./components/styledComponent";
-
+//import Welcome from "./components/Welcome";
+//import ListComponent from "./components/ListComponent";
+//import AxiosComponent from "./components/AxiosComponent";
+//import NewsPage from "./pages/NewsPage";
+import AuthPage from "./pages/AuthPage";
+import AuthResultPage from "./pages/AuthResultPage";
+import MainPage from "./pages/MainPage";
+import BalancePage from "./pages/BalancePage";
 
 function App() {
   return (
-
-    // 라우팅으로 변경
     <BrowserRouter>
       <Routes>
-      <Route path="/" element={<Welcome></Welcome>}></Route>
-      <Route path="/axios" element={<AxiosComponent />}></Route>
-        <Route path="/input" element={<InputComponent />}></Route>
-        <Route path="/list" element={<ListComponent />}></Route>
-        <Route path="/style" element={<StyledComponent />}></Route>
+        {/* <Route path="/news" element={<NewsPage />}></Route> */}
+        <Route path="/" element={<AuthPage />}></Route>
+        <Route path="/main" element={<MainPage />}></Route>
+        <Route path="/authResult" element={<AuthResultPage />}></Route>
+        <Route path="/balance" element={<BalancePage />}></Route>
       </Routes>
     </BrowserRouter>
   );
