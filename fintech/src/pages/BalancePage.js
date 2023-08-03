@@ -3,11 +3,14 @@ import { useLocation } from "react-router-dom";
 import AppHeader from "../components/common/AppHeader";
 import queryString from "query-string";
 import axios from "axios";
+import BalanceCard from "../components/balance/BalanceCard";
+import TransactionList from "../components/balance/TransactionList";
 
 const BalancePage = () => {
     let accessToken = "";
     let userSeqNo = "";
     const [balance, setBalance] = useState("아직없음");
+    const [transactionList, setTransactionList] = useState([]);
 
     // url에서 fintechUseNo 저장
     const queryParams = useLocation().search;
@@ -16,65 +19,115 @@ const BalancePage = () => {
 
     // 9자리 랜덤 수 생성
     function generateRandom9DigitNumber() {
-        const min = 100000000; // Minimum value (smallest 9-digit number)
-        const max = 999999999; // Maximum value (largest 9-digit number)
+    const min = 100000000; // Minimum value (smallest 9-digit number)
+    const max = 999999999; // Maximum value (largest 9-digit number)
 
-        const random9DigitNumber =
-        Math.floor(Math.random() * (max - min + 1)) + min;
-        return random9DigitNumber.toString();
+    const random9DigitNumber =
+      Math.floor(Math.random() * (max - min + 1)) + min;
+    return random9DigitNumber.toString();
     }
 
     // 랜덤 수로 trans id 생성
-    const getTrasId = () => {
+    const genTrasId = () => {
         return "M202300440U" + generateRandom9DigitNumber();
     };
 
-    //
     useEffect(() => {
         console.log(localStorage.getItem("accessToken"));
         console.log(localStorage.getItem("userSeqNo"));
         console.log(fintechUseNum);
-        console.log(getTrasId());
+        console.log(genTrasId());
         accessToken = localStorage.getItem("accessToken");
         userSeqNo = localStorage.getItem("userSeqNo");
         getBalance();
+        getTransactionList();
     }, []);
 
+    // 현재 시각
+    function getCurrentDateTime() {
+        const now = new Date();
 
-    // 잔액 조회
-    const getBalance = ()=>{
-        /*
-        axios 요청 작성하기
-        */
-        const sendData = {
-            bank_tran_id: getTrasId(),
-            fintech_use_num: fintechUseNum,
-            tran_dtime: "20230802161900",
-          };
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        const seconds = String(now.getSeconds()).padStart(2, "0");
 
-        const option = {
-                      method: "GET",
-          url: "/v2.0/account/balance",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          params: sendData,
+        const currentDateTime = `${year}${month}${day}${hours}${minutes}${seconds}`;
+        return currentDateTime;
+    }
+
+    /* 
+    잔액 조회
+    */
+    const getBalance = () => {
+        const sendObj = {
+        bank_tran_id: genTrasId(),
+        fintech_use_num: fintechUseNum,
+        tran_dtime: getCurrentDateTime(),
         };
 
-                // axios
+        const option = {
+        method: "GET",
+        url: "v2.0/account/balance/fin_num",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            Authorization: `Bearer ${accessToken}`,
+        },
+        params: sendObj,
+        };
+
+        // axios
         axios(option).then(({ data }) => {
-          console.log(data.res_list);
-          setAccountList(data.res_list);
+        setBalance(data);
         });
-    }
+    };
+
+
+    /* 
+    거래내역 조회
+    */
+    const getTransactionList = () => {
+        const sendObj = {
+        bank_tran_id: genTrasId(),
+        fintech_use_num: fintechUseNum,
+        inquiry_type: "A",
+        inquiry_base: "D",
+        from_date: "20230101",
+        to_date: "20230101",
+        sort_order: "D",
+        tran_dtime: "20230803110700",
+        };
+
+        const option = {
+        method: "GET",
+        url: "v2.0/account/transaction_list/fin_num",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            Authorization: `Bearer ${accessToken}`,
+        },
+        params: sendObj,
+        };
+
+        axios(option).then(({ data }) => {
+        console.log(data);
+        setTransactionList(data.res_list);
+        });
+    };
+
 
     return (
         <div>
-            <AppHeader title="잔액조회"></AppHeader>
-            {balance}
+        <AppHeader title="잔액조회"></AppHeader>
+        <BalanceCard
+            bankName={balance.bank_name}
+            fintechNo={balance.fintech_use_num}
+            balance={balance.balance_amt}
+        ></BalanceCard>
+        <TransactionList transactionList={transactionList}></TransactionList>
         </div>
     );
-};
+    };
 
 export default BalancePage;
