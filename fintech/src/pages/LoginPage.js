@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import AppHeader from "../components/common/AppHeader";
+import axios from "axios";
 
 const LoginPage = () => {
   const [id, setId] = useState("");
@@ -17,7 +18,23 @@ const LoginPage = () => {
   };
   const handleClick = () => {
     console.log(id, password);
+
+    // 추가
+    let option = {
+        url: "/login",
+        method: "POST",
+        data:{
+            id: id,
+            password: password,
+        },
+    };
+
+    axios(option).then((res) => {
+        console.log(res);
+      });
   };
+
+
   return (
     <div>
       <AppHeader title={"로그인"}></AppHeader>
