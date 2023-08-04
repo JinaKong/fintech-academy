@@ -46,4 +46,5 @@ const AESDecrypt = (plainTxt) => {
 }
 
 // 복호화 테스트
+AESEncrypt("1234");
 AESDecrypt("BHH3zWvc/D+AuxB1jGOZ8doMqLEcNk1KKUjYLZnZeHU=");
